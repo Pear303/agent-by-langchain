@@ -70,12 +70,75 @@ memory/                   运行期产物（已 gitignore）
 
 ## 内置技能
 
-基础：clawhub（技能安装）、ddg-web-search、github、skill-creator、summarize、weather、find-skills  
+基础：clawhub（技能安装）、github、skill-creator、summarize、weather  
 浏览器：agent-browser（基于 Rust，需 node/npm）  
 文档：pdf、word-docx、pptx、xlsx  
 设计：ui-ux-pro-max  
-知识：ontology、self-improving-agent  
+知识：ontology、self-improving-agent、ddg-web-search、find-skills  
 维护：auto-updater
+
+> **注意**：上述 skill 中除 `clawhub`、`github`、`skill-creator`、`summarize`、`weather` 外，
+> 均为第三方版权内容，**本仓库不包含**。详见下方"第三方技能声明"。
+
+## 第三方技能声明
+
+### 版权归属
+
+以下技能因版权/许可证限制，**不在本仓库中分发**，需要时请自行通过 ClawHub 安装：
+
+| 技能 | 来源 | 许可证 | 原因 |
+|------|------|--------|------|
+| `pdf` | Anthropic | 专有许可 | 明确禁止复制、分发、创建衍生作品 |
+| `pptx` | Anthropic | 专有许可 | 同上 |
+| `xlsx` | Anthropic | 专有许可 | 同上 |
+| `agent-browser` | ClawHub 发布 | 无开源许可证 | All Rights Reserved，版权归原作者 |
+| `auto-updater` | ClawHub 发布 | 无开源许可证 | 同上 |
+| `ddg-web-search` | ClawHub 发布 | 无开源许可证 | 同上 |
+| `find-skills` | ClawHub 发布 | 无开源许可证 | 同上 |
+| `ontology` | ClawHub 发布 | 无开源许可证 | 同上 |
+| `self-improving-agent` | ClawHub 发布 | 无开源许可证 | 同上 |
+| `ui-ux-pro-max` | ClawHub 发布 | 无开源许可证 | 同上 |
+| `word-docx` | ClawHub 发布 | 无开源许可证 | 同上 |
+
+### 缺失技能对子代理的影响
+
+本仓库开源版保留了 5 个安全技能（`clawhub`、`github`、`skill-creator`、`summarize`、`weather`），
+其余 11 个技能已被移除。以下说明各子代理在缺失状态下的能力变化：
+
+| 子代理 | 仍拥有的技能 | 失去的技能 | 剩余能力 |
+|--------|------------|-----------|---------|
+| `quick_helper` | （无 skill 映射） | 无 | 🟢 完全不受影响。短命令、快速查询照常 |
+| `doc_analyzer` | `summarize` | `pdf`、`pptx`、`ontology`、`word-docx`、`xlsx` | 🟡 仍可读文件/代码分析，失去专用文档格式指南和知识图谱 |
+| `web_researcher` | `summarize` | `agent-browser`、`ddg-web-search` | 🟡 仍可用 `web_fetch` 搜索网页，失去浏览器自动化和备用搜索方案 |
+| `validator` | `summarize` | `pdf`、`xlsx` | 🟡 仍可做常规文件校验，失去专用格式校验指南 |
+| `engine_executor` | `github` | `agent-browser`、`pdf`、`pptx`、`ui-ux-pro-max`、`word-docx`、`xlsx` | 🟡 读写文件/执行命令能力完全保留，失去浏览器/GitHub/文档/设计专用知识 |
+| `skill_manager` | `clawhub`、`skill-creator` | `find-skills` | 🟡 仍可安装和管理技能，失去主动搜索发现能力 |
+| `document_processor` | （无） | `pdf`、`pptx`、`ui-ux-pro-max`、`word-docx`、`xlsx` | 🟠 完全失去文档格式专项知识。需要处理文档时建议手动安装对应 skill |
+| `system_maintainer` | （无） | `auto-updater`、`ontology`、`self-improvement` | 🟠 完全失去运维知识。建议手动安装 |
+
+> **重要提示**：子代理仍拥有 `read_file`、`run_command`、`web_fetch` 等通用工具，不会瘫痪。
+> 失去的是"最佳实践指南"而非基础能力。LLM 自身的领域知识（如 PDF 操作、Excel 公式）仍然可用，
+> 只是不如 skill 提供的高度定制化指南准确。建议按需手动安装。
+
+### 建议安装命令
+
+```bash
+# 安装前请确认各技能的传播协议，尊重原作者版权
+npx clawhub install agent-browser     # 浏览器自动化
+npx clawhub install auto-updater      # 自动更新
+npx clawhub install ddg-web-search    # DuckDuckGo 搜索
+npx clawhub install find-skills       # 技能发现
+npx clawhub install ontology          # 知识图谱
+npx clawhub install self-improving-agent  # 自我改进
+npx clawhub install ui-ux-pro-max     # UI/UX 设计
+npx clawhub install word-docx         # Word 文档
+
+# Anthropic 专有技能（pdf/pptx/xlsx）不可通过 ClawHub 安装，
+# 它们是 AI 工具内建功能的一部分，仅在原服务中使用。
+```
+
+> **注意**：`pdf`、`pptx`、`xlsx` 三个技能属于 Anthropic 专有内容，
+> 只能在 Claude/OpenCode 等原 AI 工具中自动使用，不可提取到外部环境。
 
 ## 环境变量
 

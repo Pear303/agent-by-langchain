@@ -44,3 +44,19 @@ check_ppt.py
 fix_slides.py
 shrink_slides.py
 test-browser.js
+
+# ── 第三方技能（版权限制，不随仓库分发） ──
+# Anthropic 专有（pdf/pptx/xlsx 为 AI 工具内建，不可提取分发）
+skills/pdf/
+skills/pptx/
+skills/xlsx/
+
+# ClawHub 安装的第三方技能（All Rights Reserved，版权归原作者）
+skills/agent-browser-*/
+skills/auto-updater-*/
+skills/ddg-web-search-*/
+skills/find-skills-*/
+skills/ontology-*/
+skills/self-improving-agent-*/
+skills/ui-ux-pro-max-*/
+skills/word-docx-*/
