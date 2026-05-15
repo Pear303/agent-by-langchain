@@ -8,9 +8,6 @@ __pycache__/
 # 个人自学
 memory/           # 运行期私人数据
 learning/         # 自学笔记
-finished work/    # 练习输出
-slides/
-archive/
 
 # IDE / 编辑器配置
 .vscode/
@@ -29,8 +26,6 @@ build/
 -p/
 
 # 工程临时输出
-build-output.txt
-build-output2.txt
 node-output.txt
 *.log
 
