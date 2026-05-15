@@ -5,7 +5,7 @@ import json
 
 def test_update_todos_sets_and_lists(monkeypatch):
     from agent.lc_tools import update_todos
-    from agent.tools.todo import TodoStore
+    from agent.todo import TodoStore
 
     store = TodoStore()
     monkeypatch.setattr("agent.lc_tools._todo_store", store)
@@ -25,7 +25,7 @@ def test_update_todos_sets_and_lists(monkeypatch):
 
 def test_update_todos_list_empty(monkeypatch):
     from agent.lc_tools import update_todos
-    from agent.tools.todo import TodoStore
+    from agent.todo import TodoStore
 
     store = TodoStore()
     monkeypatch.setattr("agent.lc_tools._todo_store", store)

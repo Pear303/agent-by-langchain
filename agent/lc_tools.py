@@ -19,10 +19,10 @@ from langchain_core.prompts import ChatPromptTemplate
 
 from .subagent_parallel import ParallelAgentExecutor
 
-# ── 全局状态（由 AgentLoop 初始化时注入）──
-_workspace: Path | None = None
-_skills_loader: Any = None
-_todo_store: Any = None
+# ── 全局状态（由 LCAgent 初始化时注入）──
+_workspace: Path | None = None          # 工作区根目录
+_skills_loader: Any = None              # 技能加载器实例
+_todo_store: Any = None                 # Todo 存储实例
 
 _IGNORE_DIRS = {
     ".git", "node_modules", "__pycache__", ".venv", "venv",
@@ -31,34 +31,37 @@ _IGNORE_DIRS = {
 
 
 def set_workspace(path: Path) -> None:
+    """设置工作区根目录"""
     global _workspace
     _workspace = path
 
 
 def set_skills_loader(loader: Any) -> None:
+    """设置技能加载器"""
     global _skills_loader
     _skills_loader = loader
 
 
 def set_todo_store(store: Any) -> None:
+    """设置 Todo 存储实例"""
     global _todo_store
     _todo_store = store
 
 
 # ── 子代理依赖（由 LCAgent 初始化时注入）──
-_subagent_registry: Any = None
-_llm_ref: Any = None
+_subagent_registry: Any = None          # 子代理注册表
+_llm_ref: Any = None                    # LLM 实例引用
 
 
 def set_subagent_deps(llm, registry) -> None:
-    """设置子 Agent 依赖：LangChain LLM + 子代理注册表。"""
-    global _subagent_registry, _llm_ref
+    """设置子 Agent 依赖：LangChain LLM + 子代理注册表"""
     global _subagent_registry, _llm_ref
     _subagent_registry = registry
     _llm_ref = llm
 
 
 def _resolve(path: str) -> Path:
+    """解析路径：相对路径自动拼接工作区根目录"""
     p = Path(path).expanduser()
     if not p.is_absolute() and _workspace:
         p = _workspace / p
@@ -74,10 +77,12 @@ _QUOTE_TABLE = str.maketrans({
 
 
 def _normalize_quotes(s: str) -> str:
+    """标准化引号：将弯引号转换为直引号"""
     return s.translate(_QUOTE_TABLE)
 
 
 def _find_exact(content: str, old: str) -> list[tuple[int, int]]:
+    """精确匹配文本，返回所有匹配的 (起始位置, 结束位置)"""
     matches, start = [], 0
     while True:
         idx = content.find(old, start)
@@ -89,6 +94,7 @@ def _find_exact(content: str, old: str) -> list[tuple[int, int]]:
 
 
 def _find_trimmed(content: str, old: str, normalize: bool = False) -> list[tuple[int, int]]:
+    """按行匹配文本，容忍缩进差异和引号风格"""
     old_lines = old.splitlines()
     if not old_lines:
         return []
@@ -117,6 +123,7 @@ def _find_trimmed(content: str, old: str, normalize: bool = False) -> list[tuple
 
 
 def _find_matches(content: str, old: str) -> list[tuple[int, int]]:
+    """查找文本匹配：依次尝试精确匹配、修剪匹配、标准化匹配"""
     for finder in (
         lambda: _find_exact(content, old),
         lambda: _find_trimmed(content, old),
@@ -129,6 +136,7 @@ def _find_matches(content: str, old: str) -> list[tuple[int, int]]:
 
 
 def _best_window(old: str, content: str) -> tuple[float, int]:
+    """找到与 old_text 最相似的窗口，返回 (相似度, 起始行号)"""
     lines = content.splitlines(keepends=True)
     old_lines = old.splitlines(keepends=True)
     w = max(1, len(old_lines))
@@ -141,6 +149,7 @@ def _best_window(old: str, content: str) -> tuple[float, int]:
 
 
 def _is_binary(raw: bytes) -> bool:
+    """检测二进制文件：检查空字节和非文本字符比例"""
     if b"\x00" in raw:
         return True
     sample = raw[:4096]
@@ -151,6 +160,7 @@ def _is_binary(raw: bytes) -> bool:
 
 
 def _match_glob(rel_path: str, name: str, pattern: str) -> bool:
+    """匹配 glob 模式：支持通配符和路径匹配"""
     import fnmatch
     normalized = pattern.strip().replace("\\", "/")
     if not normalized:
@@ -176,6 +186,7 @@ _TYPE_GLOB_MAP = {
 
 
 def _matches_type(name: str, file_type: str | None) -> bool:
+    """检查文件名是否匹配指定类型"""
     import fnmatch
     if not file_type:
         return True
@@ -187,6 +198,7 @@ def _matches_type(name: str, file_type: str | None) -> bool:
 
 
 class _TextExtractor(HTMLParser):
+    """HTML 文本提取器：去除脚本和样式标签"""
     def __init__(self):
         super().__init__()
         self._parts: list[str] = []
@@ -211,6 +223,7 @@ class _TextExtractor(HTMLParser):
 
 
 def _display_path(target: Path, root: Path) -> str:
+    """显示相对路径：优先相对于工作区"""
     if _workspace:
         try:
             return target.relative_to(_workspace).as_posix()
@@ -220,6 +233,7 @@ def _display_path(target: Path, root: Path) -> str:
 
 
 def _iter_files(root: Path):
+    """递归遍历文件，跳过忽略目录"""
     if root.is_file():
         yield root
         return
@@ -231,6 +245,7 @@ def _iter_files(root: Path):
 
 
 def _iter_entries(root: Path, *, include_files: bool, include_dirs: bool):
+    """递归遍历文件或目录条目"""
     if root.is_file():
         if include_files:
             yield root
@@ -317,7 +332,7 @@ def write_file(path: str, content: str) -> str:
     """
     try:
         fp = _resolve(path)
-        fp.parent.mkdir(parents=True, exist_ok=True)
+        fp.parent.mkdir(parents=True, exist_ok=True)  # 确保父目录存在
         fp.write_text(content, encoding="utf-8")
         return f"Successfully wrote {len(content)} characters to {fp}"
     except PermissionError as e:
@@ -350,7 +365,7 @@ def edit_file(path: str, old_text: str, new_text: str, replace_all: bool = False
                 return f"Successfully created {fp}"
             return f"Error: File not found: {path}"
         raw = fp.read_bytes()
-        uses_crlf = b"\r\n" in raw
+        uses_crlf = b"\r\n" in raw  # 检测换行符风格
         content = raw.decode("utf-8").replace("\r\n", "\n")
         norm_old = old_text.replace("\r\n", "\n")
         if old_text == "":
@@ -358,8 +373,9 @@ def edit_file(path: str, old_text: str, new_text: str, replace_all: bool = False
                 return f"Error: Cannot create file — {path} already exists and is not empty."
             fp.write_text(new_text, encoding="utf-8")
             return f"Successfully edited {fp}"
-        matches = _find_matches(content, norm_old)
+        matches = _find_matches(content, norm_old)  # 查找匹配位置
         if not matches:
+            # 未找到匹配，返回最相似位置的差异对比
             ratio, start = _best_window(norm_old, content)
             if ratio > 0.5:
                 best_lines = content.splitlines(keepends=True)
@@ -377,16 +393,16 @@ def edit_file(path: str, old_text: str, new_text: str, replace_all: bool = False
             preview = ", ".join(f"line {n}" for n in lines[:3])
             return f"Warning: old_text appears {len(matches)} times at {preview}. Set replace_all=true or add more context."
         norm_new = new_text.replace("\r\n", "\n")
-        selected = matches if replace_all else matches[:1]
+        selected = matches if replace_all else matches[:1]  # 选择要替换的匹配项
         new_content = content
-        for start, end in reversed(selected):
+        for start, end in reversed(selected):  # 从后往前替换，避免位置偏移
             actual = new_content[start:end]
             replacement = norm_new
             if replacement == "" and not actual.endswith("\n") and new_content[end:end + 1] == "\n":
                 end += 1
             new_content = new_content[:start] + replacement + new_content[end:]
         if uses_crlf:
-            new_content = new_content.replace("\n", "\r\n")
+            new_content = new_content.replace("\n", "\r\n")  # 恢复原始换行符风格
         fp.write_bytes(new_content.encode("utf-8"))
         return f"Successfully edited {fp}"
     except PermissionError as e:
@@ -419,6 +435,7 @@ def run_command(command: str) -> str:
 # ═══════════════════════════════════════════════════════════════════
 
 def _fetch(url: str, extract_mode: str = "text", max_chars: int = 8000) -> str:
+    """抓取网页内容并提取文本"""
     _UA = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -492,6 +509,7 @@ def web_fetch(url: str, extract_mode: str = "text", max_chars: int = 8000) -> st
 # ═══════════════════════════════════════════════════════════════════
 
 def _paginate(items: list, limit: int | None, offset: int) -> tuple[list, bool]:
+    """分页处理：返回切片和是否截断标志"""
     if limit is None:
         return items[offset:], False
     sliced = items[offset: offset + limit]
@@ -540,7 +558,7 @@ def glob_tool(
                 matches.append((display, mtime))
         if not matches:
             return f"No paths matched pattern '{pattern}' in {path}"
-        matches.sort(key=lambda item: (-item[1], item[0]))
+        matches.sort(key=lambda item: (-item[1], item[0]))  # 按修改时间降序排序
         ordered = [name for name, _ in matches]
         paged, truncated = _paginate(ordered, limit, offset)
         result = "\n".join(paged)
@@ -779,7 +797,6 @@ def update_todos(todos: str) -> str:
 
 # ═══════════════════════════════════════════════════════════════════
 #  dispatch_subagent
-#  旧 @tool 实现见 archive/agent/old_lc_tools_snippets.py
 # ═══════════════════════════════════════════════════════════════════
 
 @tool
@@ -797,7 +814,7 @@ def dispatch_subagent(agent_type: str, task: str) -> str:
     if _llm_ref is None:
         return "Error: LLM not initialized"
 
-    spec = _subagent_registry.get(agent_type)
+    spec = _subagent_registry.get(agent_type)  # 查询子代理规格
     if spec is None:
         available = ", ".join(_subagent_registry.names())
         return f"Error: unknown subagent '{agent_type}'. Available: {available}"

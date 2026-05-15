@@ -6,8 +6,10 @@ __pycache__/
 .DS_Store
 
 # 个人自学
-memory/           # 运行期私人数据
-learning/         # 自学笔记
+memory/
+learning/
+finished work/
+finished-work/
 
 # IDE / 编辑器配置
 .vscode/

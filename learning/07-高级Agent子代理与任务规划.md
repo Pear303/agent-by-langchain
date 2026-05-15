@@ -441,7 +441,7 @@ class ParallelAgentExecutor(AgentExecutor):
   → update_todos(推进任务)
 
 第4轮: LLM 决定生成 HTML
-  → write_file(path="finished work/...", content="<!DOCTYPE html>...")
+  → write_file(path="finished-work/...", content="<!DOCTYPE html>...")
 
 第5轮: 最终回复
   → "任务完成！已生成 HTML 文件..."

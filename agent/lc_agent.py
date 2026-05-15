@@ -34,7 +34,7 @@ from .lc_tools import (
 from .memory import MemoryStore
 from .skills import SkillsLoader
 from .telemetry import TokenTracker
-from .tools.todo import TodoStore
+from .todo import TodoStore
 from .subagents.registry import SubagentRegistry
 
 
@@ -262,6 +262,37 @@ class LCAgent:
                 """
                 # 尝试从不同位置提取 token 使用信息
                 usage = getattr(response, 'llm_output', {}).get('token_usage', {})
+                """
+                # response 的实际结构（以 ChatResult）
+                response = ChatResult(
+                    generations=[  # List[List[ChatGeneration]] - 二维列表
+                        [  # 第一个候选回答组
+                            ChatGeneration(  # 具体的生成结果
+                                message=AIMessage(  # AI 返回的消息对象
+                                    content="这是 AI 的回答内容",
+                                    additional_kwargs={
+                                        "reasoning_content": "...",  # DeepSeek 特有字段
+                                    },
+                                    usage_metadata={  # ⭐👌token使用统计
+                                        "input_tokens": 100,      # 输入 token 数
+                                        "output_tokens": 50,       # 输出 token 数
+                                        "total_tokens": 150        # 总 token 数
+                                    }
+                                ),
+                                generation_info={...}  # 其他元数据
+                            )
+                        ]
+                    ],
+                    llm_output={  # 模型级别的输出信息
+                        "token_usage": {
+                            "prompt_tokens": 100,
+                            "completion_tokens": 50,
+                            "total_tokens": 150
+                        },
+                        "model_name": "deepseek-v4-flash"
+                    }
+                )
+                """
                 if not usage:
                     try:
                         usage = response.generations[0][0].message.usage_metadata

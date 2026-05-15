@@ -51,20 +51,20 @@ class ContextBuilder:
             autoescape=select_autoescape(enabled_extensions=("html",)),
         )
 
-    def render_template(self, name: str, **kwargs) -> str:
+    def render_template(self, template_name: str, **kwargs) -> str:
         """渲染指定的 Jinja2 模板文件。
         
         【调用方】context.py (内部调用)
         
         Args:
-            name: 模板文件名（相对于 agent 目录）
+            template_name: 模板文件名（相对于 agent 目录）
             **kwargs: 传递给模板的变量
             
         Returns:
             渲染后的字符串，如果出错则返回空字符串
         """
         try:
-            template = self._env.get_template(name)
+            template = self._env.get_template(template_name)
             return template.render(**kwargs)
         except Exception:
             return ""
