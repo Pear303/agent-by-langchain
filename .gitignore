@@ -1,0 +1,46 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# === 个人自学 + 教学文档（禁止开源） ===
+memory/           # 运行期私人数据（对话历史 / token 用量 / 用户档案）
+learning/         # 自学笔记（8 章 LangChain 教程）
+finished work/    # 练习输出
+slides/           # 配套教学 PPT
+archive/          # 旧代码存档（开发迭代过程中的草稿）
+
+# IDE / 编辑器配置
+.vscode/
+
+# 工具工作目录（OpenCode 草稿/计划）
+.sisyphus/
+
+# 依赖包
+node_modules/
+
+# 缓存
+.pytest_cache/
+*.egg-info/
+
+# Python 构建产物
+dist/
+build/
+
+# 临时目录
+-p/
+
+# 工程临时输出
+build-output.txt
+build-output2.txt
+node-output.txt
+*.log
+
+# 临时工具脚本（与核心 Agent 代码无关）
+build-ppt.js
+check_ppt.py
+fix_slides.py
+shrink_slides.py
+test-browser.js
