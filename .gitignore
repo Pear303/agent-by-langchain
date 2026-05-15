@@ -5,23 +5,19 @@ __pycache__/
 *.pyo
 .DS_Store
 
-# === 个人自学 + 教学文档（禁止开源） ===
-memory/           # 运行期私人数据（对话历史 / token 用量 / 用户档案）
-learning/         # 自学笔记（8 章 LangChain 教程）
+# 个人自学
+memory/           # 运行期私人数据
+learning/         # 自学笔记
 finished work/    # 练习输出
-slides/           # 配套教学 PPT
-archive/          # 旧代码存档（开发迭代过程中的草稿）
+slides/
+archive/
 
 # IDE / 编辑器配置
 .vscode/
-
-# 工具工作目录（OpenCode 草稿/计划）
 .sisyphus/
 
-# 依赖包
+# 依赖包，缓存
 node_modules/
-
-# 缓存
 .pytest_cache/
 *.egg-info/
 
@@ -52,11 +48,11 @@ skills/pptx/
 skills/xlsx/
 
 # ClawHub 安装的第三方技能（All Rights Reserved，版权归原作者）
-skills/agent-browser-*/
-skills/auto-updater-*/
-skills/ddg-web-search-*/
-skills/find-skills-*/
-skills/ontology-*/
-skills/self-improving-agent-*/
-skills/ui-ux-pro-max-*/
-skills/word-docx-*/
+skills/agent-browser*/
+skills/auto-updater*/
+skills/ddg-web-search*/
+skills/find-skills*/
+skills/ontology*/
+skills/self-improving-agent*/
+skills/ui-ux-pro-max*/
+skills/word-docx*/
