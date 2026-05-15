@@ -20,7 +20,7 @@ def test_load_skill_returns_content(temp_dir, monkeypatch):
     loader = SkillsLoader(skills_dir)
     monkeypatch.setattr("agent.lc_tools._skills_loader", loader)
 
-    result = load_skill.invoke({"name": "test-skill"})
+    result = load_skill.invoke({"skill_name": "test-skill"})
     assert "test-skill" in result
     assert "skill body" in result
 
@@ -34,5 +34,5 @@ def test_load_skill_unknown_returns_error(temp_dir, monkeypatch):
     loader = SkillsLoader(skills_dir)
     monkeypatch.setattr("agent.lc_tools._skills_loader", loader)
 
-    result = load_skill.invoke({"name": "nonexistent"})
+    result = load_skill.invoke({"skill_name": "nonexistent"})
     assert "Error" in result

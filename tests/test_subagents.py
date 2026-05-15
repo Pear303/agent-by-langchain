@@ -43,5 +43,5 @@ def test_dispatch_subagent_tool_definition(monkeypatch):
     from agent.lc_tools import dispatch_subagent
 
     assert dispatch_subagent.name == "dispatch_subagent"
-    assert "agent_type" in str(dispatch_subagent.args_schema.model_json_schema())
+    assert "agent_name" in str(dispatch_subagent.args_schema.model_json_schema())
     assert "task" in str(dispatch_subagent.args_schema.model_json_schema())

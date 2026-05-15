@@ -167,9 +167,9 @@ class SubagentRegistry:
         3. 如果子代理支持 load_skill，注入相关技能摘要（基于 _SKILL_AGENT_MAP 筛选）
         4. 创建 SubagentSpec 并存储
         """
-        for name, cfg in _BUILTIN_SPECS.items():
+        for agent_name, cfg in _BUILTIN_SPECS.items():
             # 读取模板文件中的系统提示词
-            prompt_file = self.templates_dir / f"{name}.md"
+            prompt_file = self.templates_dir / f"{agent_name}.md"
             if prompt_file.exists():
                 system_prompt = prompt_file.read_text(encoding="utf-8").strip()
             else:
@@ -178,7 +178,7 @@ class SubagentRegistry:
             # 如果子代理支持 load_skill，注入相关技能摘要
             if self._skills_loader and "load_skill" in cfg["tool_names"]:
                 # 使用 _SKILL_AGENT_MAP 筛选该子代理相关的技能
-                relevant_skills = self._build_relevant_skills_summary(name)
+                relevant_skills = self._build_relevant_skills_summary(agent_name)
                 if relevant_skills:
                     system_prompt += (
                         "\n\n## 相关技能 (load_skill)\n\n"
@@ -187,8 +187,8 @@ class SubagentRegistry:
                     )
 
             # 创建并存储子代理规格
-            self._specs[name] = SubagentSpec(
-                name=name,
+            self._specs[agent_name] = SubagentSpec(
+                name=agent_name,
                 description=cfg["description"],
                 system_prompt=system_prompt,
                 tool_names=tuple(cfg["tool_names"]),
@@ -220,41 +220,41 @@ class SubagentRegistry:
 
         # 用 skills_loader 构建摘要（只取 mapped 的技能）
         lines = []
-        for name, skill in self._skills_loader.skills.items():
-            if name not in mapped_skills:
+        for skill_name, skill in self._skills_loader.skills.items():
+            if skill_name not in mapped_skills:
                 continue
             desc = skill["meta"].get("description", "No description")
             tags = skill["meta"].get("tags", "")
-            line = f"- **{name}**: {desc}"
+            line = f"- **{skill_name}**: {desc}"
             if tags:
                 line += f" [{tags}]"
             lines.append(line)
 
         return "\n".join(lines) if lines else ""
 
-    def resolve_name(self, name: str) -> str:
+    def resolve_name(self, name_or_alias: str) -> str:
         """解析子代理名称（处理别名）。
         
         Args:
-            name: 子代理名称或别名
+            name_or_alias: 子代理名称或别名
             
         Returns:
             实际的子代理名称
         """
-        return _ALIASES.get(name, name)
+        return _ALIASES.get(name_or_alias, name_or_alias)
 
-    def get(self, name: str) -> SubagentSpec | None:
+    def get(self, agent_name: str) -> SubagentSpec | None:
         """获取指定子代理的规格。
         
         【调用方】lc_tools.py
         
         Args:
-            name: 子代理名称
+            agent_name: 子代理名称
             
         Returns:
             SubagentSpec 对象，如果不存在则返回 None
         """
-        return self._specs.get(self.resolve_name(name))
+        return self._specs.get(self.resolve_name(agent_name))
 
     def names(self, *, include_aliases: bool = False) -> list[str]:
         """获取所有子代理名称列表。

@@ -77,21 +77,21 @@ class SkillsLoader:
             
         return meta, match.group(2).strip()
 
-    def get_content(self, name: str) -> str:
+    def get_content(self, skill_name: str) -> str:
         """获取指定技能的完整内容（包装在 XML 标签中）。
         
         【调用方】lc_tools.py, skills.py (内部调用), tests/tools/test_skills.py
         
         Args:
-            name: 技能名称
+            skill_name: 技能名称
             
         Returns:
             格式化的技能内容字符串，如果技能不存在则返回错误提示和可用技能列表
         """
-        skill = self.skills.get(name)
+        skill = self.skills.get(skill_name)
         if not skill:
-            return f"Error: Unknown skill '{name}'. Available: {', '.join(self.skills.keys())}"
-        return f'<skill name="{name}">\n{skill["body"]}\n</skill>'
+            return f"Error: Unknown skill '{skill_name}'. Available: {', '.join(self.skills.keys())}"
+        return f'<skill name="{skill_name}">\n{skill["body"]}\n</skill>'
 
     def get_always_skills(self) -> list[str]:
         """获取所有标记为 always 的技能名称列表。
@@ -105,9 +105,9 @@ class SkillsLoader:
             需要始终激活的技能名称列表
         """
         always_skills = []
-        for name, skill in self.skills.items():
+        for skill_name, skill in self.skills.items():
             if skill["meta"].get("always", False):
-                always_skills.append(name)
+                always_skills.append(skill_name)
         return always_skills
 
     def load_skills_for_context(self, skill_names: list[str]) -> str:
@@ -122,8 +122,8 @@ class SkillsLoader:
             所有技能内容的拼接字符串，用双换行分隔；如果没有有效技能则返回空字符串
         """
         parts = []
-        for name in skill_names:
-            content = self.get_content(name)
+        for skill_name in skill_names:
+            content = self.get_content(skill_name=skill_name)
             # 只添加非错误的技能内容
             if not content.startswith("Error:"):
                 parts.append(content)
@@ -148,16 +148,16 @@ class SkillsLoader:
             return ""
             
         lines = []
-        for name, skill in self.skills.items():
+        for skill_name, skill in self.skills.items():
             # 跳过被排除的技能
-            if name in exclude:
+            if skill_name in exclude:
                 continue
                 
             desc = skill["meta"].get("description", "No description")
             tags = skill["meta"].get("tags", "")
             
             # 构建摘要行：名称 + 描述 + 可选标签
-            line = f"- **{name}**: {desc}"
+            line = f"- **{skill_name}**: {desc}"
             if tags:
                 line += f" [{tags}]"
             lines.append(line)

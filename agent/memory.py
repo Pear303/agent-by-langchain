@@ -58,8 +58,8 @@ class MemoryStore(BaseChatMessageHistory):
         """初始化记忆存储管理器。
         
         Args:
-            memory_dir: 记忆文件存储目录
-            user_file: 用户偏好档案文件路径（USER.md）
+            memory_dir: 记忆文件存储目录（self.root / "memory"）
+            user_file: 用户偏好档案文件路径（self.root / "templates" / "USER.md"）
         """
         self.memory_dir = memory_dir
         self.memory_file = memory_dir / "MEMORY.md"
