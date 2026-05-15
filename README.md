@@ -84,3 +84,5 @@ memory/                   运行期产物（已 gitignore）
 | `DEEPSEEK_API_KEY` | DeepSeek API Key |
 | `DEEPSEEK_BASE_URL` | API 地址（默认 https://api.deepseek.com） |
 | `DEEPSEEK_MODEL` | 使用的模型（默认 deepseek-v4-flash） |
+
+其余环境变量请查看 `.env.example`。
