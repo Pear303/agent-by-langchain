@@ -11,7 +11,6 @@ from pathlib import Path
 
 from .spec import SubagentSpec
 
-
 # 工具白名单写在代码里，不放模板中
 # 模板里只写身份/口吻/职责文案
 _BUILTIN_SPECS: dict[str, dict] = {
@@ -104,7 +103,7 @@ _BUILTIN_SPECS: dict[str, dict] = {
 }
 
 # 技能 → 子代理映射
-# 标记每个技能最适合哪些子代理，用于按需注入到子代理的系统提示词中
+# 本项目默认映射以下skills（有部分不允许开源传播，）
 _SKILL_AGENT_MAP: dict[str, list[str]] = {
     "Agent Browser":       ["web_researcher", "engine_executor"],
     "auto-updater":        ["system_maintainer"],

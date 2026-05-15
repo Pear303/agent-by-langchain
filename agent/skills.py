@@ -64,7 +64,7 @@ class SkillsLoader:
         Returns:
             (meta_dict, body_string) 元组，如果解析失败则返回空字典和原文
         """
-        # 匹配 YAML frontmatter 块（--- 包裹的部分）
+        # 匹配 YAML frontmatter 块
         match = re.match(r"^---\n(.*?)\n---\n(.*)", text, re.DOTALL)
         if not match:
             return {}, text
